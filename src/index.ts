@@ -14,7 +14,7 @@ const AppDataSource = new DataSource({
   username: process.env.DB_USER || "root",
   password: process.env.DB_PASSWORD || "password",
   database: process.env.DB_NAME || "test_db",
-  entities: [User,Post],
+  entities: [User, Post],
   synchronize: true,
 });
 
@@ -34,11 +34,31 @@ const initializeDatabase = async () => {
 initializeDatabase();
 
 app.post('/users', async (req, res) => {
-// Crie o endpoint de users
+  try {
+    const { firstName, lastName, email } = req.body;
+    const user = new User();
+    user.firstName = firstName;
+    user.lastName = lastName;
+    user.email = email;
+    await AppDataSource.manager.save(user);
+    res.status(201).json(user);
+  } catch (error) {
+    res.status(400).json({ message: 'Error creating user', error });
+  }
 });
 
 app.post('/posts', async (req, res) => {
-// Crie o endpoint de posts
+  try {
+    const { title, description, userId } = req.body;
+    const post = new Post();
+    post.title = title;
+    post.description = description;
+    post.userId = userId;
+    await AppDataSource.manager.save(post);
+    res.status(201).json(post);
+  } catch (error) {
+    res.status(400).json({ message: 'Error creating post', error });
+  }
 });
 
 const PORT = process.env.PORT || 3000;
